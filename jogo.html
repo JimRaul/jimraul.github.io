@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Atari ASCII Game</title>
+<style>
+  body {
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+    color: #00ff41; /* Cor verde padrão para o jogo */
+  }
+
+  .game-container {
+    border: 2px solid #00ff41;
+    box-shadow: 0 0 15px #00ff41;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 10px;
+    position: relative;
+  }
+
+  #game-area {
+    width: 60ch; /* 60 caracteres de largura */
+    height: 30em; /* 30 linhas de altura */
+    white-space: pre; /* Preserva espaços e quebras de linha */
+    overflow: hidden; /* Garante que o conteúdo não vaze */
+    font-size: 16px;
+    line-height: 1;
+    text-shadow: 0 0 5px #00ff41;
+  }
+
+  #score {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-weight: bold;
+  }
+
+  #instructions {
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    font-size: 12px;
+    color: #999;
+  }
+
+  #game-over-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: #ff0000; /* Vermelho para Game Over */
+    text-shadow: 0 0 10px #ff0000;
+    display: none; /* Escondido por padrão */
+  }
+
+  #game-over-screen button {
+    background-color: #00ff41;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 20px;
+    font-size: 0.7em;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    box-shadow: 0 0 8px #00ff41;
+    transition: background-color 0.2s, box-shadow 0.2s;
+  }
+
+  #game-over-screen button:hover {
+    background-color: #00e639;
+    box-shadow: 0 0 12px #00ff41;
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <pre id="game-area"></pre>
+  <div id="score">SCORE: 0</div>
+  <div id="instructions">Use &lt; &gt; para mover</div>
+
+  <div id="game-over-screen">
+    GAME OVER!
+    <div id="final-score">SCORE: 0</div>
+    <button id="restart-button">RESTART</button>
+  </div>
+</div>
+
+<script>
+  const gameArea = document.getElementById('game-area');
+  const scoreDisplay = document.getElementById('score');
+  const gameOverScreen = document.getElementById('game-over-screen');
+  const finalScoreDisplay = document.getElementById('final-score');
+  const restartButton = document.getElementById('restart-button');
+
+  const WIDTH = 60; // Largura do campo de jogo em caracteres
+  const HEIGHT = 25; // Altura do campo de jogo em linhas (exclui o score/instruções)
+  const PLAYER_CHAR = '▲'; // Caractere do jogador (triângulo para cima)
+  const OBSTACLE_CHARS = ['#', '@', '%', '*', 'X']; // Caracteres dos obstáculos
+  const EMPTY_CHAR = ' ';
+
+  let playerPos = Math.floor(WIDTH / 2); // Posição inicial do jogador
+  let obstacles = []; // Array para guardar a posição dos obstáculos
+  let score = 0;
+  let gameInterval;
+  let obstacleSpeed = 200; // ms por frame (quanto menor, mais rápido)
+  let gameRunning = false;
+
+  function initGame() {
+    playerPos = Math.floor(WIDTH / 2);
+    obstacles = [];
+    score = 0;
+    obstacleSpeed = 200;
+    scoreDisplay.textContent = `SCORE: ${score}`;
+    gameOverScreen.style.display = 'none';
+    gameRunning = true;
+    clearInterval(gameInterval); // Limpa qualquer intervalo anterior
+    gameInterval = setInterval(gameLoop, obstacleSpeed);
+    drawGame();
+  }
+
+  function createObstacle() {
+    const obstacleWidth = Math.floor(Math.random() * (WIDTH / 3)) + 3; // Largura aleatória do obstáculo
+    let obstacleRow = Array(WIDTH).fill(EMPTY_CHAR);
+    let startPos = Math.floor(Math.random() * (WIDTH - obstacleWidth));
+
+    for (let i = 0; i < obstacleWidth; i++) {
+      obstacleRow[startPos + i] = OBSTACLE_CHARS[Math.floor(Math.random() * OBSTACLE_CHARS.length)];
+    }
+    obstacles.unshift(obstacleRow); // Adiciona na primeira linha
+    if (obstacles.length > HEIGHT) {
+      obstacles.pop(); // Remove o obstáculo mais antigo se sair da tela
+    }
+  }
+
+  function movePlayer(direction) {
+    if (!gameRunning) return;
+    if (direction === 'left' && playerPos > 0) {
+      playerPos--;
+    } else if (direction === 'right' && playerPos < WIDTH - 1) {
+      playerPos++;
+    }
+    drawGame(); // Redesenha o jogo após mover o jogador
+  }
+
+  function checkCollision() {
+    // Verifica se há obstáculo na linha do jogador (última linha visível antes do chão)
+    if (obstacles.length >= HEIGHT - 1) {
+      const playerRow = obstacles[HEIGHT - 1]; // Linha onde o jogador está "virtualmente"
+      if (playerRow && playerRow[playerPos] !== EMPTY_CHAR) {
+        gameOver();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function gameOver() {
+    gameRunning = false;
+    clearInterval(gameInterval);
+    finalScoreDisplay.textContent = `SCORE: ${score}`;
+    gameOverScreen.style.display = 'flex';
+  }
+
+  function drawGame() {
+    let gameField = [];
+
+    // Desenha os obstáculos
+    for (let y = 0; y < HEIGHT; y++) {
+      if (obstacles[y]) {
+        gameField.push(obstacles[y].join(''));
+      } else {
+        gameField.push(Array(WIDTH).fill(EMPTY_CHAR).join(''));
+      }
+    }
+
+    // Desenha o jogador na última linha
+    let playerRow = Array(WIDTH).fill(EMPTY_CHAR);
+    playerRow[playerPos] = PLAYER_CHAR;
+    gameField[HEIGHT - 1] = playerRow.join(''); // Coloca o jogador na penúltima linha
+
+    gameArea.textContent = gameField.join('\n');
+  }
+
+  function gameLoop() {
+    if (!gameRunning) return;
+
+    // Aumenta a dificuldade
+    if (score > 0 && score % 10 === 0 && obstacleSpeed > 50) {
+        obstacleSpeed -= 5;
+        clearInterval(gameInterval);
+        gameInterval = setInterval(gameLoop, obstacleSpeed);
+    }
+
+    // Cria novos obstáculos com alguma chance
+    if (Math.random() < 0.6) { // Ajuste para mais ou menos obstáculos
+      createObstacle();
+    }
+    
+    // Remove o obstáculo mais antigo
+    if (obstacles.length > HEIGHT) {
+      obstacles.pop();
+    }
+
+    if (!checkCollision()) {
+      score++;
+      scoreDisplay.textContent = `SCORE: ${score}`;
+      drawGame();
+    }
+  }
+
+  // Controles do teclado
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+      movePlayer('left');
+    } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+      movePlayer('right');
+    } else if (e.key === 'Enter' && !gameRunning) {
+        initGame(); // Reinicia o jogo com Enter
+    }
+  });
+
+  restartButton.addEventListener('click', initGame);
+
+  // Inicia o jogo ao carregar a página
+  initGame();
+</script>
+
+</body>
+</html>
