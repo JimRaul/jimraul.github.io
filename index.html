@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Terminal 90s - Hello World</title>
+<style>
+  body {
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .terminal-box {
+    background-color: #000;
+    border: 2px solid #00ff41; /* Borda verde */
+    padding: 20px;
+    box-shadow: 0 0 10px #00ff41, inset 0 0 10px #00ff41; /* Glow na borda e dentro */
+    border-radius: 10px;
+  }
+
+  pre {
+    color: #00ff41;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 12px; /* Reduzi um pouco para garantir que caiba */
+    line-height: 1;
+    margin: 0;
+    text-shadow: 0 0 5px #00ff41;
+  }
+
+  /* Animação do cursor piscando */
+  .cursor {
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="terminal-box">
+<pre>
+  __________________________________________________
+ |                                                  |
+ |  _    _  _____  _      _       ____              |
+ | | |  | || ____|| |    | |     / __ \             |
+ | | |__| || |__  | |    | |    | |  | |            |
+ | |  __  ||  __| | |    | |    | |  | |            |
+ | | |  | || |___ | |____| |____| |__| |            |
+ | |_|  |_||_____||______|______|\____/             |
+ |                                                  |
+ |  __          __  ____   _____  _      _____      |
+ |  \ \        / / / __ \ |  __ \| |    |  __ \     |
+ |   \ \  /\  / / | |  | || |__) | |    | |  | |    |
+ |    \ \/  \/ /  | |  | ||  _  /| |    | |  | |    |
+ |     \  /\  /   | |__| || | \ \| |____| |__| |    |
+ |      \/  \/     \____/ |_|  \_\______|_____/     |
+ |                                                  |
+ | ================================================ |
+ |                                                  |
+ |   ____   _____  __  __                           |
+ |  |  _ \ |  ___||  \/  |                          |
+ |  | |_) || |__  | \  / |                          |
+ |  |  _ < |  __| | |\/| |                          |
+ |  | |_) || |___ | |  | |                          |
+ |  |____/ |_____||_|  |_|                          |
+ |                                                  |
+ |  __      __ _  _   _  ____    ___                |
+ |  \ \    / /| || \ | ||  _ \  / _ \               |
+ |   \ \  / / | ||  \| || | | || | | |              |
+ |    \ \/ /  | || . ` || |_| || |_| |              |
+ |     \__/   |_||_|\_||____/  \___/                |
+ |                                                  |
+ |                                                  |
+ | > STATUS: ONLINE_ <span class="cursor">|</span>                              |
+ |__________________________________________________|
+</pre>
+</div>
+
+</body>
+</html>
