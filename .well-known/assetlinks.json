@@ -1,13 +1,15 @@
-    [
-      {
-        "relation": ["delegate_permission/common.handle_all_urls"],
-        "target": {
-          "namespace": "android_app",
-          "package_name": "com.jimraul.camerafeliz",
-          "sha256_cert_fingerprints": [
-            "5F:09:71:C2:27:D2:93:46:D6:91:99:FB:33:AB:E5:64:EC:8C:5F:29:EB:71:66:BC:E5:A4:2F:1A:96:08:E9:AD"
-          ]
-        }
-      }
-    ]
-    
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.jimraul.camerafeliz",
+      "sha256_cert_fingerprints": [
+        "5F:09:71:C2:27:D2:93:46:D6:91:99:FB:33:AB:E5:64:EC:8C:5F:29:EB:71:66:BC:E5:A4:2F:1A:96:08:E9:AD"
+      ]
+    }
+  }
+]
